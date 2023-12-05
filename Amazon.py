@@ -3,7 +3,18 @@ import streamlit as st
 import plotly.express as px
 import random
 from datetime import datetime, timedelta
+# Your Streamlit app code
 
+try:
+    # Code that may raise an error
+    # For example, @st.cache_data usage or any other potentially error-prone code
+    pass  # Replace 'pass' with the code that might cause an error
+except Exception as e:
+    st.warning("An error occurred: {}".format(e))  # Display a warning message
+    # You can also choose to ignore the error silently without displaying a message
+    pass  # Replace 'pass' with what you want to do if the error occurs
+
+# Rest of your Streamlit app code
 st.set_page_config(page_title="YYZ9", page_icon=":bar_chart:",layout="wide")
 st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow_html=True)
 st.header('Amazon YYZ9     Andon Report Based on Area and Types')
@@ -205,7 +216,3 @@ fig.update_layout(
     height=800
 )
 st.plotly_chart(fig)
-
-
-
-
