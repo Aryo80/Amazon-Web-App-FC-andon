@@ -115,10 +115,7 @@ color_scale = [
     'rgb(247, 103, 117)',  # Light gray
     'rgb(68, 125, 115)',  # Medium gray
     'rgb(70, 201, 184)',  # Yellow 
-    'rgb(220, 255, 255)'   # Dark gray
-    
-    
-]
+    'rgb(220, 255, 255)'   # Dark gray]
 fig.update_layout(
     autosize=True,
     width=500,
@@ -190,14 +187,6 @@ fig = px.treemap(pivot_df, path=['Location', 'Type'], values='Count',
                  hover_data={'Count': True}
                  )
 
-# Update layout and hover template to display custom data
-
-# Update layout
-fig.update_layout(
-    width=700,
-    height=800
-)
-
 st.plotly_chart(fig)
 # Add annotations for each tile with count values
 # Create a treemap using Plotly Express
@@ -211,8 +200,5 @@ fig = px.treemap(pivot_df, path=[ 'Type','Location'], values='Count',
 # Update layout and hover template to display custom data
 
 # Update layout
-fig.update_layout(
-    width=700,
-    height=800
-)
+
 st.plotly_chart(fig)
