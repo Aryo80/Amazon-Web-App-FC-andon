@@ -117,7 +117,6 @@ color_scale = [
     'rgb(70, 201, 184)',  # Yellow 
     'rgb(220, 255, 255)'   # Dark gray]
 fig.update_layout(
-    autosize=True,
     width=500,
     height=500
 )
