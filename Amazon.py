@@ -209,34 +209,3 @@ st.plotly_chart(fig)
 
 
 
-import streamlit as st
-import plotly.express as px
-
-# Assuming 'area' DataFrame contains the cleaned data for 'Area'
-
-# Set up Streamlit layout in columns
-num_cols = 5  # Number of columns to display the charts
-num_locations = len(area)  # Total number of unique locations
-
-# Calculate donut charts dynamically for each location
-for i, location in enumerate(area['Location']):
-    if i % num_cols == 0:
-        chart_columns = st.columns(num_cols)
-
-    with chart_columns[i % num_cols]:
-        # Calculate the percentage for the current location relative to the total sum
-        percentage_current = area.loc[i, 'Count'] / area['Count'].sum() * 100
-
-        # Calculate the total percentage for the rest of the locations
-        percentage_rest = 100 - percentage_current
-
-        # Create a list of percentages for the chart
-        percentages = [percentage_current, percentage_rest]
-
-        # Create a list of names for the chart segments
-        names = [location, 'Rest']
-
-        fig = px.pie(values=percentages, names=names, hole=0.6)
-        fig.update_traces(textposition='inside', textinfo='percent+label')
-        fig.update_layout(showlegend=False)
-        #st.plotly_chart(fig, use_container_width=True)
