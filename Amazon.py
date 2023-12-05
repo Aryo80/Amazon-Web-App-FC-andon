@@ -20,7 +20,7 @@ st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow
 st.header('Amazon YYZ9     Andon Report Based on Area and Types')
 
 # Function to generate simulated data (with caching)
-@st.cache_data
+@st.cache
 def generate_simulated_data(num_rows=1000):
     # Simulating data for Location, Type, and Date
     locations = ['P-1-P', 'P-1-R', 'P-1-V', 'P-2-M', 'P-3-M']
