@@ -163,7 +163,6 @@ pivot_df = filter_data.groupby(['Location', 'Type']).size().reset_index(name='Co
 fig = px.treemap(pivot_df, path=['Location', 'Type'], values='Count', 
                  title='Types of Andon Within each Area',
                  custom_data=['Count'],
-                 hover_data={'Count': True}
                  )
 
 st.plotly_chart(fig)
@@ -173,7 +172,6 @@ st.subheader(" Tree Map of Count Types of Andons in Respective Areas ")
 fig = px.treemap(pivot_df, path=[ 'Type','Location'], values='Count', 
                  title='Zone Within each Type of Andons',
                  custom_data=['Count'],
-                 hover_data={'Count': True}
                  )
 
 # Update layout and hover template to display custom data
