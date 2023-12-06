@@ -109,24 +109,7 @@ area.columns = ['Location', 'Count']
 # Donut plot for Areas
 fig = px.pie(area, values='Count', names='Location', hole=0.7)
 
-color_scale = [
-     # Define a custom color scale with varying shades from yellow to red
-    'rgb(227, 43, 52)' , # Medium gray
-    'rgb(247, 103, 117)',  # Light gray
-    'rgb(68, 125, 115)',  # Medium gray
-    'rgb(70, 201, 184)',  # Yellow 
-    'rgb(220, 255, 255)'   # Dark gray]
 
-# Assign the custom color scale to the pie chart
-
-fig.update_layout(
-    legend=dict(
-        orientation='v',  # Horizontal orientation for the legend
-        x=-0.4,  # Positioning the legend in the center horizontally
-        y=0.5  # Positioning the legend in the center vertically
-        
-    )
-)
 
 # Defining First row in two parts of columns
 
