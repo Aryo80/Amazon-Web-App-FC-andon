@@ -118,7 +118,7 @@ color_scale = [
     'rgb(220, 255, 255)'   # Dark gray]
 
 # Assign the custom color scale to the pie chart
-fig.update_traces(marker=dict(colors=color_scale))
+
 fig.update_layout(
     legend=dict(
         orientation='v',  # Horizontal orientation for the legend
