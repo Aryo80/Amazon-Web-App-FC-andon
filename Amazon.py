@@ -157,7 +157,7 @@ st.plotly_chart(fig)
 st.subheader(" Tree Map of Andon Issue Counts by Location  ")
 # Create a pivot table to aggregate counts based on Location and Type
 pivot_df = filter_data.groupby(['Location', 'Type']).size().reset_index(name='Count')
-
+pivot_df = pd.DataFrame(pivot_df)
 
 # Create a treemap using Plotly Express
 fig = px.treemap(pivot_df, path=['Location', 'Type'],values='Count' )
