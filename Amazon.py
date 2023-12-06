@@ -160,7 +160,7 @@ pivot_df = filter_data.groupby(['Location', 'Type']).size().reset_index(name='Co
 
 
 # Create a treemap using Plotly Express
-fig = px.treemap(pivot_df, path=['Location', 'Type'] )
+fig = px.treemap(pivot_df, path=['Location', 'Type'],values='Count' )
 
 st.plotly_chart(fig)
 # Add annotations for each tile with count values
