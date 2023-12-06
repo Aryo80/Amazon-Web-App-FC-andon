@@ -160,18 +160,14 @@ pivot_df = filter_data.groupby(['Location', 'Type']).size().reset_index(name='Co
 
 
 # Create a treemap using Plotly Express
-fig = px.treemap(pivot_df, path=['Location', 'Type'], values='Count', 
-                 title='Types of Andon Within each Area',
-                 custom_data=['Count'],
-                 )
+fig = px.treemap(pivot_df, path=['Location', 'Type'], values='Count' )
 
 st.plotly_chart(fig)
 # Add annotations for each tile with count values
 # Create a treemap using Plotly Express
 st.subheader(" Tree Map of Count Types of Andons in Respective Areas ")
 fig = px.treemap(pivot_df, path=[ 'Type','Location'], values='Count', 
-                 title='Zone Within each Type of Andons',
-                 custom_data=['Count'],
+                 title='Zone Within each Type of Andons'
                  )
 
 # Update layout and hover template to display custom data
