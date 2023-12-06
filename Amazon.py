@@ -116,10 +116,7 @@ color_scale = [
     'rgb(68, 125, 115)',  # Medium gray
     'rgb(70, 201, 184)',  # Yellow 
     'rgb(220, 255, 255)'   # Dark gray]
-fig.update_layout(
-    width=500,
-    height=500
-)
+
 # Assign the custom color scale to the pie chart
 fig.update_traces(marker=dict(colors=color_scale))
 fig.update_layout(
