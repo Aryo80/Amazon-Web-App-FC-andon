@@ -123,7 +123,7 @@ with col2:
 # Line chart using Plotly Express
 st.subheader("Counts of Andon Across the Days") 
 pivot_df = filter_data.groupby(['Last updated date', 'Location']).size().reset_index(name='Count')
-fig = px.line(pivot_df, x='Last updated date', y='Count', color='Location',  title='Count per Location Over Time')
+fig = px.area(pivot_df, x='Last updated date', y='Count', color='Location',  title='Count per Location Over Time')
 fig.update_layout(xaxis_title='Date', yaxis_title='Count',width=900,height=500)
 st.plotly_chart(fig)
 
