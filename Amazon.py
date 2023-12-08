@@ -62,7 +62,7 @@ else:
         st.write("Simulated data generated to run the demo :")
         show_data = st.checkbox('Show Data')
         if show_data:
-            st.write(data.head())
+            st.write(data.head(20))
             
 
 st.subheader('Andon counts on different areas')
