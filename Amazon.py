@@ -180,7 +180,7 @@ st.plotly_chart(fig)
 # Create a treemap using Plotly Express
 st.subheader(" Tree Map of Count Types of Andons in Respective Areas ")
 fig = px.treemap(pivot_df, path=[ 'Type','Location'], values='Count',
-                 height=600,width=850)
+                 height=900,width=1000)
 
 # Update layout and hover template to display custom data
 
