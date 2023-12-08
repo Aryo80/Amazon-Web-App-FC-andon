@@ -53,7 +53,7 @@ if file is not None:
     show_data = st.checkbox('Show Data')
     if show_data:
         st.write("Uploaded DataFrame:")
-        st.write(data.head(100))
+        st.write(data)
         st.write("Row col",data.shape)
 else:
         # Generate or retrieve simulated data using st.cache_data    
