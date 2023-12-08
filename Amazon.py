@@ -122,7 +122,7 @@ fig.update_layout(
     height=500
 )
 
-
+fig.update_traces(marker=dict(colors=color_scale))
 # Defining First row in two parts of columns
 
 col1, col2 = st.columns((2))
