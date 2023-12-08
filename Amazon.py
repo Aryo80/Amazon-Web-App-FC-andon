@@ -108,7 +108,19 @@ area.columns = ['Location', 'Count']
 
 # Donut plot for Areas
 fig = px.pie(area, values='Count', names='Location', hole=0.7)
-
+color_scale = [
+     # Define a custom color scale with varying shades from yellow to red
+    'rgb(227, 43, 52)' , # Medium gray
+    'rgb(247, 103, 117)',  # Light gray
+    'rgb(68, 125, 115)',  # Medium gray
+    'rgb(70, 201, 184)',  # Yellow 
+    'rgb(220, 255, 255)'   # Dark gray       
+]
+fig.update_layout(
+    autosize=True,
+    width=500,
+    height=500
+)
 
 
 # Defining First row in two parts of columns
