@@ -174,7 +174,7 @@ pivot_df = pd.DataFrame(pivot_df)
 
 # Create a treemap using Plotly Express
 fig = px.treemap(pivot_df, path=['Location', 'Type'],values='Count',
-                 height=800,width=900)
+                 height=900,width=1000)
 st.plotly_chart(fig)
 # Add annotations for each tile with count values
 # Create a treemap using Plotly Express
