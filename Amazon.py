@@ -139,6 +139,13 @@ fig = px.area(pivot_df, x='Last updated date', y='Count', color='Location',  tit
 fig.update_layout(xaxis_title='Date', yaxis_title='Count',width=900,height=500)
 st.plotly_chart(fig)
 
+# Line chart using Plotly Express
+st.subheader("Counts of Andon Typed Across the Days") 
+pivot_df = filter_data.groupby(['Last updated date', 'Type']).size().reset_index(name='Count')
+fig = px.area(pivot_df, x='Last updated date', y='Count', color='Type',  title='Count/Type Over Time')
+fig.update_layout(xaxis_title='Date', yaxis_title='Count',width=900,height=500)
+st.plotly_chart(fig)
+
 
 st.subheader("Counts of Andon Based on the Types")
 # Type of issues
