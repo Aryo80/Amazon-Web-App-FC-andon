@@ -190,7 +190,10 @@ fig = px.treemap(pivot_df, path=[ 'Type','Location'], values='Count',
                  height=700,width=900)
 
 # Update layout and hover template to display custom data
-
 # Update layout
-
 st.plotly_chart(fig)
+
+show_filtered_data = st.checkbox('Show Filtered  Data')
+    if show_data:
+        st.write("Filtered Data from ---- to --- :")
+        st.table(filter_data)
