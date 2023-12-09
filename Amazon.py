@@ -196,4 +196,4 @@ st.plotly_chart(fig)
 show_filtered_data = st.checkbox('Show Filtered  Data')
 if show_filtered_data :
         st.write("Filtered Data from ---- to --- :")
-        st.table(filter_data)
+        st.write(filter_data)
