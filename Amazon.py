@@ -1,12 +1,26 @@
 
 import pandas as pd
-import streamlit as stps
+import streamlit as st
 import plotly.express as px
 import random
 from datetime import datetime, timedelta
 # Load your data or use sample data
 # Assuming 'df_sorted' contains your data
 # Replace this with your actual data
+
+
+data=pd.read_csv(r"C:\Users\Honar\Downloads\FC.csv")
+
+# Your Streamlit app code
+
+try:
+    # Code that may raise an error
+    # For example, @st.cache_data usage or any other potentially error-prone code
+    pass  # Replace 'pass' with the code that might cause an error
+except Exception as e:
+    st.warning("An error occurred: {}".format(e))  # Display a warning message
+    # You can also choose to ignore the error silently without displaying a message
+    pass  # Replace 'pass' with what you want to do if the error occurs
 
 def custom_pie_chart(data, values_col, names_col,w=500,h=500):
     # Create a pie chart using Plotly Express
@@ -22,9 +36,9 @@ def custom_pie_chart(data, values_col, names_col,w=500,h=500):
     # Assign the custom color scale to the pie chart
     fig.update_layout(
         legend=dict(
-            orientation='v'  # Horizontal orientation for the legend
-                     # Positioning the legend in the center horizontally
-                       # Positioning the legend in the center vertically
+            orientation='v',  # Horizontal orientation for the legend
+            x=-0.4,           # Positioning the legend in the center horizontally
+            y=0.5             # Positioning the legend in the center vertically
         )
     )
 
@@ -58,6 +72,7 @@ def generate_simulated_data(num_rows=1000):
     })
     df = pd.DataFrame(data)
     return df
+
 file = st.file_uploader("Upload /Drag and Drop CSV file from FC ANDON", type=['csv'])
 if file is not None:
     # Read the uploaded file with Pandas
@@ -75,6 +90,7 @@ else:
             
 
 
+#data=pd.read_csv(r"C:\Users\Honar\Downloads\data.csv")
 data['Locations'] = data['Location']
 data['Location'] = data['Location'].str[0:5]
 col1, col2 = st.columns((2))
@@ -123,7 +139,7 @@ def ps_report():
     ps_pivot = ps_data.pivot_table(values='counts', columns='Assigned to', index='Type'
                                 , margins=True, margins_name='Total', aggfunc='sum')
 
-
+    st.write(round(ps_pivot,0))
     fig = px.pie(ps_data, values='counts', names='Assigned to', hole=0.7)
 
     fig.update_layout(
@@ -144,11 +160,16 @@ def ps_report():
     st.plotly_chart(fig,use_container_width=True)
      # pivot table for ps 
     st.dataframe(ps_pivot,height=550,width=900)
-
+   
     
+
+
+
     col1, col2= st.columns([1, 4])
+
     # Display content in the defined columns
     with col1:
+         
          report_ps = st.radio('Select Report',df_sorted['Assigned to'].dropna().unique())
          ps_indvidual = df_sorted[df_sorted['Assigned to'] == report_ps].iloc[:,2:]
     with col2:
@@ -235,7 +256,10 @@ def hot_bin_report():
             #st.write(locations_with_selected_count)
             st.subheader(f"Bin IDs Found for Update Num of   {selected_hot} :")
             selected_bin = st.radio("Select a Bin ID to see the Details :", locations_with_selected_count['Location'])
+
     # Radio buttons for selecting counts
+
+
     # Filter data based on selected count
     locations_with_selected_count = bin_df_sorted[bin_df_sorted['Count'] == selected_count]
 
@@ -249,6 +273,7 @@ def hot_bin_report():
     else:
         st.write("No locations with the selected count.")
         # Display content for Report B
+
 def Andons_report():
     st.header('Amazon YYZ9     Andon Report Based on Area and Types')
     st.subheader('Andon counts on different areas')
