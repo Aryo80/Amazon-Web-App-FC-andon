@@ -137,7 +137,7 @@ def ps_report():
     ps_data = df_sorted.groupby(['Assigned to','Type']).size().reset_index(name='counts')
     ps_pivot = ps_data.pivot_table(values='counts', columns='Assigned to', index='Type'
                                 , margins=True, margins_name='Total', aggfunc='sum')
-    pd.options.display.float_format = '{:.0f}'.format
+    ps_pivot .options.display.float_format = '{:.0f}'.format
     st.write(ps_pivot)
      # Assign the custom color scale to the pie chart
     fig = px.pie(ps_data, values='counts', names='Assigned to', hole=0.7)
