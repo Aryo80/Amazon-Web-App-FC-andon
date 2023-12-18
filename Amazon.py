@@ -361,7 +361,7 @@ def Andons_report():
     # Streamlit app
     st.subheader("Counts of Andon Across the Days in different Areas")
     # Radio box to select the chart type
-    chart_types = ['Bar', 'Area', 'Line']
+    chart_types = ['Area','Bar','Line']
     selected_chart = st.radio("Select Chart Type", chart_types)
     # Create chart based on the selected type
     create_chart(selected_chart)
