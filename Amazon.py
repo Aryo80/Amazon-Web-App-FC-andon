@@ -8,11 +8,6 @@ from datetime import datetime, timedelta
 # Assuming 'df_sorted' contains your data
 # Replace this with your actual data
 
-
-    st.warning("An error occurred: {}".format(e))  # Display a warning message
-    # You can also choose to ignore the error silently without displaying a message
-    pass  # Replace 'pass' with what you want to do if the error occurs
-
 def custom_pie_chart(data, values_col, names_col,w=500,h=500):
     # Create a pie chart using Plotly Express
     fig = px.pie(data, values=values_col, names=names_col, hole=0.7)
