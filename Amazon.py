@@ -9,7 +9,6 @@ from datetime import datetime, timedelta
 # Replace this with your actual data
 
 
-data=pd.read_csv(r"C:\Users\Honar\Downloads\FC.csv")
 
 # Your Streamlit app code
 
