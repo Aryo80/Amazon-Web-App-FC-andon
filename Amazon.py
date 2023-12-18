@@ -155,17 +155,12 @@ def ps_report():
 
     st.plotly_chart(fig,use_container_width=True)
      # pivot table for ps 
-    st.dataframe(round(ps_pivot,0),height=550,width=900)
-   
+    st.dataframe(ps_pivot),height=550,width=900)
+
     
-
-
-
     col1, col2= st.columns([1, 4])
-
     # Display content in the defined columns
     with col1:
-         
          report_ps = st.radio('Select Report',df_sorted['Assigned to'].dropna().unique())
          ps_indvidual = df_sorted[df_sorted['Assigned to'] == report_ps].iloc[:,2:]
     with col2:
