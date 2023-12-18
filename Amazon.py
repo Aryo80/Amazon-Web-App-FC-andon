@@ -8,12 +8,7 @@ from datetime import datetime, timedelta
 # Assuming 'df_sorted' contains your data
 # Replace this with your actual data
 
-# Your Streamlit app code
-try:
-    # Code that may raise an error
-    # For example, @st.cache_data usage or any other potentially error-prone code
-    pass  # Replace 'pass' with the code that might cause an error
-except Exception as e:
+
     st.warning("An error occurred: {}".format(e))  # Display a warning message
     # You can also choose to ignore the error silently without displaying a message
     pass  # Replace 'pass' with what you want to do if the error occurs
@@ -68,11 +63,7 @@ def generate_simulated_data(num_rows=1000):
     })
     df = pd.DataFrame(data)
     return df
-try:
     file = st.file_uploader("Upload /Drag and Drop CSV file from FC ANDON", type=['csv'])
-except Exception:
-    pass
-      
 if file is not None:
     # Read the uploaded file with Pandas
     data= pd.read_csv(file) 
