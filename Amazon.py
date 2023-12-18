@@ -8,11 +8,7 @@ from datetime import datetime, timedelta
 # Assuming 'df_sorted' contains your data
 # Replace this with your actual data
 
-
-data=pd.read_csv(r"C:\Users\Honar\Downloads\FC.csv")
-
 # Your Streamlit app code
-
 try:
     # Code that may raise an error
     # For example, @st.cache_data usage or any other potentially error-prone code
