@@ -35,9 +35,8 @@ def custom_pie_chart(data, values_col, names_col,w=500,h=500):
     # Assign the custom color scale to the pie chart
     fig.update_layout(
         legend=dict(
-            orientation='v',  # Horizontal orientation for the legend
-            x=-0.4,           # Positioning the legend in the center horizontally
-            y=0.5             # Positioning the legend in the center vertically
+            orientation='v'
+                    
         )
     )
 
