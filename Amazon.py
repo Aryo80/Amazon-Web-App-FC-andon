@@ -138,7 +138,7 @@ def ps_report():
     ps_pivot = ps_data.pivot_table(values='counts', columns='Assigned to', index='Type'
                                 , margins=True, margins_name='Total', aggfunc='sum')
     
-    st.table(ps_pivot)
+    st.write(ps_pivot.applymap('{:.0f}'.format))
      # Assign the custom color scale to the pie chart
     fig = px.pie(ps_data, values='counts', names='Assigned to', hole=0.7)
     fig.update_layout(
