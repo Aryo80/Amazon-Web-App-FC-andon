@@ -157,11 +157,8 @@ def ps_report():
 
     st.plotly_chart(fig,use_container_width=True)
      # pivot table for ps 
-    st.dataframe(ps_pivot,height=550,width=900)
-   
     
-
-
+   
 
     col1, col2= st.columns([1, 4])
 
