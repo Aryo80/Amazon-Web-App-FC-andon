@@ -138,15 +138,14 @@ def ps_report():
     ps_pivot = ps_data.pivot_table(values='counts', columns='Assigned to', index='Type'
                                 , margins=True, margins_name='Total', aggfunc='sum')
 
-    st.write(round(ps_pivot,0))
+    st.write(ps_pivot)
+     # Assign the custom color scale to the pie chart
     fig = px.pie(ps_data, values='counts', names='Assigned to', hole=0.7)
-
     fig.update_layout(
         autosize=True,
         width=500,
         height=500
     )
-    # Assign the custom color scale to the pie chart
     fig.update_layout(
         legend=dict(
             orientation='v',     # Horizontal orientation for the legend
