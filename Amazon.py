@@ -70,7 +70,8 @@ def generate_simulated_data(num_rows=1000):
     return df
 try:
     file = st.file_uploader("Upload /Drag and Drop CSV file from FC ANDON", type=['csv'])
-pass
+except Exception:
+    pass
       
 if file is not None:
     # Read the uploaded file with Pandas
