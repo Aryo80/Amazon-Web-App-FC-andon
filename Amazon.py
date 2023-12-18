@@ -1,6 +1,6 @@
 
 import pandas as pd
-import streamlit as st
+import streamlit as stps
 import plotly.express as px
 import random
 from datetime import datetime, timedelta
@@ -155,7 +155,7 @@ def ps_report():
 
     st.plotly_chart(fig,use_container_width=True)
      # pivot table for ps 
-    st.dataframe(ps_pivot,height=550,width=900)
+    st.dataframe(round(ps_pivot,0),height=550,width=900)
    
     
 
@@ -252,10 +252,7 @@ def hot_bin_report():
             #st.write(locations_with_selected_count)
             st.subheader(f"Bin IDs Found for Update Num of   {selected_hot} :")
             selected_bin = st.radio("Select a Bin ID to see the Details :", locations_with_selected_count['Location'])
-
     # Radio buttons for selecting counts
-
-
     # Filter data based on selected count
     locations_with_selected_count = bin_df_sorted[bin_df_sorted['Count'] == selected_count]
 
@@ -269,7 +266,6 @@ def hot_bin_report():
     else:
         st.write("No locations with the selected count.")
         # Display content for Report B
-
 def Andons_report():
     st.header('Amazon YYZ9     Andon Report Based on Area and Types')
     st.subheader('Andon counts on different areas')
