@@ -58,7 +58,7 @@ def generate_simulated_data(num_rows=1000):
     })
     df = pd.DataFrame(data)
     return df
-    file = st.file_uploader("Upload /Drag and Drop CSV file from FC ANDON", type=['csv'])
+file = st.file_uploader("Upload /Drag and Drop CSV file from FC ANDON", type=['csv'])
 if file is not None:
     # Read the uploaded file with Pandas
     data= pd.read_csv(file) 
