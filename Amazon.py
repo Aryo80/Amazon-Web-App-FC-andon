@@ -86,7 +86,6 @@ else:
             
 
 
-#data=pd.read_csv(r"C:\Users\Honar\Downloads\data.csv")
 data['Locations'] = data['Location']
 data['Location'] = data['Location'].str[0:5]
 col1, col2 = st.columns((2))
