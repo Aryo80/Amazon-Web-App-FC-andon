@@ -86,9 +86,19 @@ else:
         if show_data1:
             st.write(data.head())
             
+# Detect Data is Open/solved Andon
+if 'Root Cause' in data.columns:
+    if data['Root Cause'].isna().sum() > 0.5*len(data):
+        open_or_solve = "OPEN"
+        radio_list = ['Andons report' ]
+    else :
+        open_or_solve = "SOLVED"
+        radio_list = ['Andons report','Problem Solvers Report', 'Hot Bins Report' ]
+else:
+    open_or_solve = "OPEN"
+    radio_list = ['Andons report' ]
 
 
-#data=pd.read_csv(r"C:\Users\Honar\Downloads\data.csv")
 data['Locations'] = data['Location']
 data['Location'] = data['Location'].str[0:5]
 col1, col2 = st.columns((2))
@@ -444,7 +454,7 @@ def Andons_report():
 
 def main():
     st.sidebar.title('Select Report')
-    report_choice = st.sidebar.radio('Select Report', ['Andons report','Problem Solvers Report', 'Hot Bins Report' ])
+    report_choice = st.sidebar.radio('Select Report', radio_list)
 
     if report_choice == 'Problem Solvers Report':
         ps_report()
