@@ -76,7 +76,7 @@ if file is not None:
     # Read the uploaded file with Pandas
     data= pd.read_csv(file) 
     # Display DataFrame in Streamlit
-    st.write("Data Loaded")
+    st.write(f"Data for {open_or_solve} Andons Loaded")
 else:
         # Generate or retrieve simulated data using st.cache_data    
         data = generate_simulated_data(num_rows=1000) # Adjust the number of rows as needed
@@ -340,7 +340,7 @@ def Andons_report():
         #st.plotly_chart(fig,use_container_width=True)
     
     # Line chart using Plotly Express
-    st.subheader("Counts of Andon Across the Days") 
+    st.subheader(f"Counts of {open_or_solve} Andon Across the Days") 
     pivot_df = filter_data.groupby('Last updated date').size().reset_index(name='Count')
     fig = px.line(pivot_df, x='Last updated date', y='Count',  title='Count per Location Over Time')
     fig.update_layout(xaxis_title='Date', yaxis_title='Count',width=900,height=500)
@@ -364,7 +364,7 @@ def Andons_report():
         st.plotly_chart(fig)
 
     # Streamlit app
-    st.subheader("Counts of Andon Across the Days in different Areas")
+    st.subheader(f"Counts of {open_or_solve} Andon Across the Days in different Areas")
     # Radio box to select the chart type
     chart_types = ['Area','Bar','Line']
     selected_chart = st.radio("Select Chart Type", chart_types)
@@ -374,7 +374,7 @@ def Andons_report():
     
 
     # Line chart using Plotly Express
-    st.subheader("Counts of Andon Typed Across the Days") 
+    st.subheader(f"Counts of {open_or_solve} Andon Typed Across the Days") 
 
     pivot_df = filter_data.groupby(['Last updated date', 'Type']).size().reset_index(name='Count')
     fig = px.bar(pivot_df, x='Last updated date', y='Count', color='Type',  title='Count/Type Over Time')
@@ -382,7 +382,7 @@ def Andons_report():
     st.plotly_chart(fig)
 
 
-    st.subheader(f"Cumulative counts of Andon Types based on their respective types from  {startDate} to {endDate}") 
+    st.subheader(f"Cumulative counts of {open_or_solve} Andon Types based on their respective types from  {startDate} to {endDate}") 
     # Type of issues
 ###################################################
     start_time, end_time = st.slider(
@@ -421,7 +421,7 @@ def Andons_report():
     st.plotly_chart(fig)
     # Display the plot
 
-    st.subheader(" Tree Map of Andon Issue Counts by Location  ")
+    st.subheader(f" Tree Map of {open_or_solve} Andon Issue Counts by Location  ")
     # Create a pivot table to aggregate counts based on Location and Type
     pivot_df = filter_data.groupby(['Location', 'Type']).size().reset_index(name='Count')
 
@@ -440,7 +440,7 @@ def Andons_report():
     st.plotly_chart(fig)
     # Add annotations for each tile with count values
     # Create a treemap using Plotly Express
-    st.subheader(" Tree Map of Count Types of Andons in Respective Areas ")
+    st.subheader(f" Tree Map of Count Types of {open_or_solve} Andons in Respective Areas ")
     fig = px.treemap(pivot_df, path=[ 'Type','Location'], values='Count', 
                     title='Zone Within each Type of Andons',
                     custom_data=['Count'],
