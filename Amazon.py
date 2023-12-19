@@ -279,7 +279,7 @@ def hot_bin_report():
         # Display content for Report B
 
 def Andons_report():
-    st.header(f 'Amazon YYZ9   Andon Report Based on Area and Types...{open_or_solve}')
+    st.header(f'Amazon YYZ9   Andon Report Based on Area and Types...{open_or_solve}')
     st.subheader('Andon counts on different areas')
     show_data = st.checkbox('Show Data')
     if show_data:
