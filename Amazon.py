@@ -205,7 +205,11 @@ def ps_report():
                 .groupby('Type')
                 .size()
                 .reset_index(name='counts'))      
-            
+     st.write(df_sorted[(df_sorted['Assigned to'] == report_ps) & (df_sorted['Last updated date'] == ind_scheduele)]
+                .groupby('Type')
+                .size()
+                .reset_index(name='counts').sum()      
+                       
 def hot_bin_report():
     st.header('hot_bin_report')
     # Load your data or use sample data
