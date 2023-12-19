@@ -201,10 +201,7 @@ def ps_report():
     with col1:
          st.write(ind_scheduele)
     with col2:
-         exact_date = df_sorted[(df_sorted['Assigned to'] == report_ps) & (df_sorted['Last updated date'] == ind_scheduele)]
-                .groupby('Type')
-                .size()
-                .reset_index(name='counts')
+         exact_date = df_sorted[(df_sorted['Assigned to'] == report_ps) & (df_sorted['Last updated date'] == ind_scheduele)].groupby('Type').size().reset_index(name='counts')
          st.write(exact_date)      
      st.write(exact_date['counts'].sum()) 
                        
