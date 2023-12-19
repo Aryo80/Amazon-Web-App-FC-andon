@@ -280,7 +280,7 @@ def hot_bin_report():
 
 def Andons_report():
     st.header(f'Amazon YYZ9   Andon Report Based on Area and Types...{open_or_solve}')
-    st.subheader('Andon counts on different areas')
+    st.subheader(f'{open_or_solve} Andon counts on different areas')
     show_data = st.checkbox('Show Data')
     if show_data:
         st.write("Uploaded DataFrame:")
@@ -320,7 +320,7 @@ def Andons_report():
     )
 
     # Defining First row in two parts of columns
-    st.write('Total number of Andons =' + str(len(data) ) )
+    st.write(f'Total number of {open_or_solve} Andons =' + str(len(data) ) )
     st.write(area)
     #if area.iloc[0,0] : st.write(f'**Total number of Andons at { area.iloc[0,0] } =  { area.iloc[0,1] }**'  )
     #if area.iloc[1,0] : st.write(f'**Total number of Andons at { area.iloc[1,0] } =  { area.iloc[1,1] }**'  )
