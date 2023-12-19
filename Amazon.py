@@ -89,13 +89,13 @@ else:
 # Detect Data is Open/solved Andon
 if 'Root Cause' in data.columns:
     if data['Root Cause'].isna().sum() > 0.5*len(data):
-        open_or_solve = "OPEN"
+        open_or_solve ="Non-Resolved"
         radio_list = ['Andons report' ]
     else :
-        open_or_solve = "SOLVED"
+        open_or_solve = "Resolved"
         radio_list = ['Andons report','Problem Solvers Report', 'Hot Bins Report' ]
 else:
-    open_or_solve = "OPEN"
+    open_or_solve = "Non-Resolved"
     radio_list = ['Andons report' ]
 
 
@@ -279,7 +279,7 @@ def hot_bin_report():
         # Display content for Report B
 
 def Andons_report():
-    st.header('Amazon YYZ9     Andon Report Based on Area and Types')
+    st.header(f 'Amazon YYZ9   Andon Report Based on Area and Types...{open_or_solve}')
     st.subheader('Andon counts on different areas')
     show_data = st.checkbox('Show Data')
     if show_data:
