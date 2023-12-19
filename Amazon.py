@@ -196,10 +196,11 @@ def ps_report():
          st.write(f'{total_rec_ind} Andon has been resolved by {report_ps}')
          schadual_ps = df_sorted[df_sorted['Assigned to'] == report_ps]['Last updated date'].unique()
          ind_scheduele = st.radio('Scheduele in Details ',schadual_ps)
-         st.write("")
-         st.write("")
-
         
+    col1, col2= st.columns([1, 3])
+    with col1:
+         st.write(ind_scheduele)
+    with col2:    
          st.write(df_sorted[(df_sorted['Assigned to'] == report_ps) & (df_sorted['Last updated date'] == ind_scheduele)]
                 .groupby('Type')
                 .size()
