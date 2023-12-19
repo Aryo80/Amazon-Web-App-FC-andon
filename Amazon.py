@@ -138,7 +138,7 @@ else:
 msg_filter = f"Report from {startDate} to {endDate} at {selected_area} based on {selected_type}"
 st.write(msg_filter)
 def ps_report():
-    st.header('ICQA Problem Solvers Report')
+    st.header('ICQA Problem Solvers Group Report')
     #filter_data = data[data['Root Cause'] != 'Duplicate']
     df_sorted = pd.DataFrame(filter_data)
     # Grouping by 'Location' and getting counts
@@ -146,57 +146,22 @@ def ps_report():
     ps_data = df_sorted.groupby(['Assigned to','Type']).size().reset_index(name='counts')
     ps_pivot = ps_data.pivot_table(values='counts', columns='Assigned to', index='Type'
                                 , margins=True, margins_name='Total', aggfunc='sum')
-    
+   ### Group Report 
     st.write(ps_pivot.applymap('{:.0f}'.format))
      # Assign the custom color scale to the pie chart
-    fig = px.pie(ps_data, values='counts', names='Assigned to', hole=0.7)
+    fig = px.bar(df_sorted.groupby('Assigned to').size().reset_index(name='Resolved Andon Num'),
+                  x='Resolved Andon Num', y='Assigned to', orientation='h' ,text='Resolved Andon Num')
+
     fig.update_layout(
         autosize=True,
-        width=500,
+        width=700,
         height=500
     )
-    fig.update_layout(
-        legend=dict(
-            orientation='v',     # Horizontal orientation for the legend
-            x=-0.4,              # Positioning the legend in the center horizontally
-            y=0.5                # Positioning the legend in the center vertically
-            
-        )
-    )
-
+    
     st.plotly_chart(fig,use_container_width=True)
      # pivot table for ps 
-    
-   
-
-    col1, col2= st.columns([1, 4])
-
-    # Display content in the defined columns
-    with col1:
-         
-         report_ps = st.radio('Select Report',df_sorted['Assigned to'].dropna().unique())
-         ps_indvidual = df_sorted[df_sorted['Assigned to'] == report_ps].iloc[:,2:]
-    with col2:
-        # Prepare data for individual reports of PS
-        ps_ind_data = df_sorted[df_sorted['Assigned to'] == report_ps].groupby('Type').size().reset_index(name='counts')
-        #st.write(ps_ind_data)
-        custom_pie_chart(ps_ind_data, 'counts', 'Type',400,400)
-         #
-
-
-    col1, col2= st.columns([4, 1])
-
-    # Display content in the defined columns
-    with col1:
-         st.write(ps_ind_data)
-    with col2:
-         st.write(report_ps)
-         total_rec_ind = ps_ind_data['counts'].sum()
-         st.write(f'{total_rec_ind} Andon has been resolved by {report_ps}')
-             
-
     fig = px.treemap(ps_data, path=['Assigned to','Type'], values='counts', 
-                    title='Types of Andon Within each Area',
+                    title='Types of Andon Resolved by each PS',
                     custom_data=['counts'],
                     hover_data={'counts': True},
                     height=700,width=900
@@ -205,8 +170,39 @@ def ps_report():
     # Update layout
     st.plotly_chart(fig)
 
-        # Display content for Report A
+    
+    ## Individual Report
+    st.header('ICQA Problem Solvers Individual Report')
+    col1, col2= st.columns([1, 4])
+    # Display content in the defined columns
+    with col1:
+         report_ps = st.radio('Select Report',df_sorted['Assigned to'].dropna().unique())
+         ps_indvidual = df_sorted[df_sorted['Assigned to'] == report_ps].iloc[:,2:]
+        
+    with col2:
+        # Prepare data for individual reports of PS
+        ps_ind_data = df_sorted[df_sorted['Assigned to'] == report_ps].groupby('Type').size().reset_index(name='counts')
+        #st.write(ps_ind_data)
+        custom_pie_chart(ps_ind_data, 'counts', 'Type',400,400)
+         #
 
+
+    col1, col2= st.columns([2, 2])
+
+    # Display content in the defined columns
+    with col1:
+         st.write(ps_ind_data)
+    with col2:
+         st.write(report_ps)
+         total_rec_ind = ps_ind_data['counts'].sum()
+         st.write(f'{total_rec_ind} Andon has been resolved by {report_ps}')
+         schadual_ps = df_sorted[df_sorted['Assigned to'] == report_ps]['Last updated date'].unique()
+         ind_scheduele = st.radio('Scheduele in Details ',schadual_ps)
+         st.write(df_sorted[(df_sorted['Assigned to'] == report_ps) & (df_sorted['Last updated date'] == ind_scheduele)]
+            .groupby('Type')
+            .size()
+            .reset_index(name='counts')) 
+            
 def hot_bin_report():
     st.header('hot_bin_report')
     # Load your data or use sample data
