@@ -200,15 +200,13 @@ def ps_report():
     col1, col2= st.columns([1,4])
     with col1:
          st.write(ind_scheduele)
-    with col2:    
-         st.write(df_sorted[(df_sorted['Assigned to'] == report_ps) & (df_sorted['Last updated date'] == ind_scheduele)]
+    with col2:
+         exact_date = df_sorted[(df_sorted['Assigned to'] == report_ps) & (df_sorted['Last updated date'] == ind_scheduele)]
                 .groupby('Type')
                 .size()
-                .reset_index(name='counts'))      
-     st.write(df_sorted[(df_sorted['Assigned to'] == report_ps) & (df_sorted['Last updated date'] == ind_scheduele)]
-                .groupby('Type')
-                .size()
-                .sum()      
+                .reset_index(name='counts')
+         st.write(exact_date)      
+     st.write(exact_date['counts'].sum()) 
                        
 def hot_bin_report():
     st.header('hot_bin_report')
