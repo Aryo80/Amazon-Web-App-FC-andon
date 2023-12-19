@@ -76,7 +76,7 @@ if file is not None:
     # Read the uploaded file with Pandas
     data= pd.read_csv(file) 
     # Display DataFrame in Streamlit
-    st.write(f"Data for {open_or_solve} Andons Loaded")
+    st.write(f"Data for Andons Loaded")
 else:
         # Generate or retrieve simulated data using st.cache_data    
         data = generate_simulated_data(num_rows=1000) # Adjust the number of rows as needed
