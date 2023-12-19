@@ -203,7 +203,7 @@ def ps_report():
     with col2:
          exact_date = df_sorted[(df_sorted['Assigned to'] == report_ps) & (df_sorted['Last updated date'] == ind_scheduele)].groupby('Type').size().reset_index(name='counts')
          st.write(exact_date)      
-     st.write(exact_date['counts'].sum()) 
+    
                        
 def hot_bin_report():
     st.header('hot_bin_report')
