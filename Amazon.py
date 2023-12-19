@@ -186,10 +186,8 @@ def ps_report():
         custom_pie_chart(ps_ind_data, 'counts', 'Type',400,400)
          #
 
-
+    st.subheader(report_ps)
     col1, col2= st.columns([2, 2])
-
-    # Display content in the defined columns
     with col1:
          st.write(ps_ind_data)
     with col2:
