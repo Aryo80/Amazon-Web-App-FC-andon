@@ -191,6 +191,8 @@ def ps_report():
          st.write(ps_ind_data)
     with col2:
          st.write(report_ps)
+         total_rec_ind = ps_ind_data['counts'].sum()
+         st.write(f'{total_rec_ind} Andon has been resolved by {report_ps}')
              
 
     fig = px.treemap(ps_data, path=['Assigned to','Type'], values='counts', 
