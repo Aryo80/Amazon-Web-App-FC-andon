@@ -196,10 +196,14 @@ def ps_report():
          st.write(f'{total_rec_ind} Andon has been resolved by {report_ps}')
          schadual_ps = df_sorted[df_sorted['Assigned to'] == report_ps]['Last updated date'].unique()
          ind_scheduele = st.radio('Scheduele in Details ',schadual_ps)
-    st.write(df_sorted[(df_sorted['Assigned to'] == report_ps) & (df_sorted['Last updated date'] == ind_scheduele)]
-            .groupby('Type')
-            .size()
-            .reset_index(name='counts'))      
+         st.write("")
+         st.write("")
+
+        
+         st.write(df_sorted[(df_sorted['Assigned to'] == report_ps) & (df_sorted['Last updated date'] == ind_scheduele)]
+                .groupby('Type')
+                .size()
+                .reset_index(name='counts'))      
             
 def hot_bin_report():
     st.header('hot_bin_report')
