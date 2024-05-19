@@ -7,7 +7,7 @@ Data Cleaning: The web application provides data cleaning functionalities to ens
 Reporting: Detailed reports are generated, focusing on problem solvers who resolved Andon incidents and hot bins.
 Visualization: Interactive charts and graphs using Plotly provide visual insights into the Andon data.
 ## Project Links
-Live Web Application: https://amazon-yyz9-web-app-fc-andon-by-honarmah.streamlit.app/GitHub 
+Live Web Application: https://amazon-yyz9-web-app-fc-andon-by-honarmah.streamlit.app 
 ## Technologies Used
 Python Libraries: Pandas, Streamlit, Plotly
 Data Source: CSV files extracted from the FC Andon app
