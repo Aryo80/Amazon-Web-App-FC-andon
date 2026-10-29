@@ -147,7 +147,7 @@ def ps_report():
     ps_pivot = ps_data.pivot_table(values='counts', columns='Assigned to', index='Type'
                                 , margins=True, margins_name='Total', aggfunc='sum')
    ### Group Report 
-    st.write(ps_pivot.applymap('{:.0f}'.format))
+    st.write(ps_pivot.map('{:.0f}'.format))
      # Assign the custom color scale to the pie chart
     fig = px.bar(df_sorted.groupby('Assigned to').size().reset_index(name='Resolved Andon Num'),
                   x='Resolved Andon Num', y='Assigned to', orientation='h' ,text='Resolved Andon Num')
