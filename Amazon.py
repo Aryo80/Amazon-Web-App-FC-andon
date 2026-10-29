@@ -1,471 +1,407 @@
 
-import pandas as pd
-import streamlit as st
-import plotly.express as px
-import random
+"""Amazon FC ANDON dashboard.
+
+Streamlit/Plotly dashboard for uploaded FC ANDON CSV files, with synthetic
+sample data when no file is uploaded.
+"""
+
 from datetime import datetime, timedelta
-# Load your data or use sample data
-# Assuming 'df_sorted' contains your data
-# Replace this with your actual data
+import random
+
+import pandas as pd
+import plotly.express as px
+import streamlit as st
 
 
+st.set_page_config(page_title="Amazon FC ANDON Reports", layout="wide")
 
-# Your Streamlit app code
 
-try:
-    # Code that may raise an error
-    # For example, @st.cache_data usage or any other potentially error-prone code
-    pass  # Replace 'pass' with the code that might cause an error
-except Exception as e:
-    st.warning("An error occurred: {}".format(e))  # Display a warning message
-    # You can also choose to ignore the error silently without displaying a message
-    pass  # Replace 'pass' with what you want to do if the error occurs
+# -----------------------------------------------------------
+# Data loading and validation
+# -----------------------------------------------------------
 
-def custom_pie_chart(data, values_col, names_col,w=500,h=500):
-    # Create a pie chart using Plotly Express
-    fig = px.pie(data, values=values_col, names=names_col, hole=0.7)
-
-    # Update the layout of the pie chart
-    fig.update_layout(
-        autosize=True,
-        width=w,
-        height=h
-    )
-
-    # Assign the custom color scale to the pie chart
-    fig.update_layout(
-        legend=dict(
-            orientation='v'
-                    
+def generate_simulated_data(num_rows=1000):
+    """Generate demonstration records; they are NOT real Amazon data."""
+    locations = ["P-1-P", "P-1-R", "P-1-V", "P-2-M", "P-3-M"]
+    types = [
+        "Ambiguous Asin", "Broken Set", "Damaged Item",
+        "Multiple Scannable Barcodes", "No Bin Divider",
+        "No Scannable Barcode", "Unsafe to Count", "Incorrect Title",
+        "Bin does not Exist", "Incorrect Binding", "Misstickered FBA Item",
+        "No Scannable Bin Label", "Suspect Theft",
+    ]
+    start_date = datetime(2023, 11, 11)
+    end_date = datetime(2023, 12, 31)
+    rows = []
+    for _ in range(num_rows):
+        date = start_date + timedelta(
+            days=random.randint(0, (end_date - start_date).days)
         )
-    )
+        rows.append({
+            "Location": random.choice(locations),
+            "Type": random.choice(types),
+            "Last updated date": date.strftime("%Y-%m-%d"),
+        })
+    return pd.DataFrame(rows)
 
-    # Display the pie chart using Streamlit
+
+def prepare_data(raw_data):
+    """Validate core fields and preserve both full bin IDs and 5-char regions."""
+    required = {"Location", "Type", "Last updated date"}
+    missing = sorted(required.difference(raw_data.columns))
+    if missing:
+        raise ValueError("Missing required CSV columns: " + ", ".join(missing))
+
+    df = raw_data.copy()
+    df["Locations"] = df["Location"].astype("string").str.strip()
+    df["Location"] = df["Locations"].str[:5]
+    df["Type"] = df["Type"].astype("string").str.strip()
+    df["Last updated date"] = pd.to_datetime(
+        df["Last updated date"], errors="coerce"
+    ).dt.date
+
+    for col in ("Root Cause", "Assigned to"):
+        if col in df.columns:
+            df[col] = df[col].astype("string").str.strip()
+            df[col] = df[col].replace("", pd.NA)
+
+    before = len(df)
+    df = df.dropna(subset=["Location", "Locations", "Type", "Last updated date"])
+    df = df[(df["Location"] != "") & (df["Type"] != "")].copy()
+    if len(df) < before:
+        st.warning(f"Skipped {before - len(df):,} rows with missing or invalid required fields.")
+    return df
+
+
+def custom_pie_chart(frame, values_col, names_col, width=500, height=500):
+    if frame.empty:
+        st.info("No data available for this chart.")
+        return
+    fig = px.pie(frame, values=values_col, names=names_col, hole=0.7)
+    fig.update_layout(width=width, height=height, legend=dict(orientation="v"))
     st.plotly_chart(fig, use_container_width=True)
 
 
-# Function to generate simulated data (with caching)
+# -----------------------------------------------------------
+# Problem Solvers group and individual reports
+# -----------------------------------------------------------
 
-def generate_simulated_data(num_rows=1000):
-    # Simulating data for Location, Type, and Date
-    locations = ['P-1-P', 'P-1-R', 'P-1-V', 'P-2-M', 'P-3-M']
-    types     = ['Ambiguous Asin', 'Broken Set', 'Damaged Item', 'Multiple Scannable Barcodes', 'No Bin Divider',
-                'No Scannable Barcode', 'Unsafe to Count', 'Incorrect Title', 'Bin does not Exist', 'Broken Set',
-                'Damaged Item', 'Incorrect Binding', 'Incorrect Title', 'Misstickered FBA Item', 'Multiple Scannable Barcodes',
-                'No Bin Divider', 'No Scannable Barcode', 'No Scannable Bin Label', 'Suspect Theft', 'Unsafe to Count', 'Ambiguous Asin', 
-                'Bin does not Exist', 'Broken Set', 'Damaged Item', 'Incorrect Binding', 'Incorrect Title', 'Multiple Scannable Barcodes', 
-                'No Bin Divider', 'No Scannable Barcode', 'No Scannable Bin Label', 'Suspect Theft', 'Unsafe to Count', 'Ambiguous Asin', 
-                'Bin does not Exist', 'Broken Set', 'Damaged Item', 'Incorrect Title', 'Multiple Scannable Barcodes', 'No Bin Divider', 
-                'No Scannable Barcode', 'No Scannable Bin Label', 'Suspect Theft', 'Unsafe to Count']
-    start_date = datetime(2023, 11, 11)
-    end_date = datetime(2023, 12, 31)
+def ps_report(filtered):
+    st.header("ICQA Problem Solvers Group Report")
 
-    data = []
-    for _ in range(1000):  # Generating 100 rows of simulated data
-        data.append({
-            'Location': random.choice(locations),
-            'Type': random.choice(types),
-            'Last updated date': (start_date + timedelta(days=random.randint(0, 
-            (end_date - start_date).days)) + timedelta(hours=random.randint(0, 23))).strftime('%Y-%m-%d')
-    })
-    df = pd.DataFrame(data)
-    return df
-    
-file = st.file_uploader("Upload /Drag and Drop CSV file from FC ANDON", type=['csv'])
-if file is not None:
-    # Read the uploaded file with Pandas
-    data= pd.read_csv(file) 
-    # Display DataFrame in Streamlit
-    st.write(f"Data for Andons Loaded")
-else:
-        # Generate or retrieve simulated data using st.cache_data    
-        data = generate_simulated_data(num_rows=1000) # Adjust the number of rows as needed
-        st.write("Drag and Drop CSV file from FC ANDON")
-        st.write("Simulated data generated to run the demo :")
-        show_data1 = st.checkbox('Show The Data')
-        if show_data1:
-            st.write(data.head())
-            
-# Detect Data is Open/solved Andon
-if 'Root Cause' in data.columns:
-    if data['Root Cause'].isna().sum() > 0.5*len(data):
-        open_or_solve ="Non-Resolved"
-        radio_list = ['Andons report' ]
-    else :
-        open_or_solve = "Resolved"
-        radio_list = ['Andons report','Problem Solvers Report', 'Hot Bins Report' ]
-else:
-    open_or_solve = "Non-Resolved"
-    radio_list = ['Andons report' ]
+    if "Assigned to" not in filtered.columns:
+        st.warning("The uploaded CSV does not contain the 'Assigned to' column.")
+        return
 
+    df = filtered.dropna(subset=["Assigned to", "Type"]).copy()
+    if df.empty:
+        st.info("No assigned Problem Solver records match these filters.")
+        return
 
-data['Locations'] = data['Location']
-data['Location'] = data['Location'].str[0:5]
-col1, col2 = st.columns((2))
-# Cleaning Data
-# Getting the min and max date for date input
-data['Last updated date'] = pd.to_datetime(data['Last updated date']).dt.date
-startDate = data['Last updated date'].min()
-endDate = data['Last updated date'].max()
-# Create Sidebar for Areas
-st.sidebar.header("Choose your filter: ")
-date1 =st.sidebar.date_input("Start Date", startDate)
-date2 = st.sidebar.date_input("End Date", endDate)
-data = data[(data['Last updated date'] >= date1) & (data['Last updated date'] <= date2)].copy()
-selected_area = st.sidebar.multiselect("Region", data['Location'].unique())
-
-
-if not selected_area:
-    filtered_area=data.copy()
-else:
-    filtered_area=data[data['Location'].isin(selected_area)]
-# Create Sidebar for Types of Andon
-selected_type = st.sidebar.multiselect("Type of Andons", data['Type'].unique())
-if not selected_type:
-    filtered_type=data.copy()
-else:
-    filtered_type=data[data['Type'].isin(selected_type)]
-
-if not selected_type and not selected_area:
-    filter_data=data
-elif not selected_type and selected_area:
-    filter_data=filtered_area
-elif  selected_type and not selected_area:
-    filter_data=filtered_type
-else:
-    filter_data=filtered_type[filtered_type['Location'].isin(selected_area)]
-
-msg_filter = f"Report from {startDate} to {endDate} at {selected_area} based on {selected_type}"
-st.write(msg_filter)
-def ps_report():
-    st.header('ICQA Problem Solvers Group Report')
-    #filter_data = data[data['Root Cause'] != 'Duplicate']
-    df_sorted = pd.DataFrame(filter_data)
-    # Grouping by 'Location' and getting counts
-    ps_data = df_sorted.groupby('Assigned to').size().reset_index(name='counts')
-    ps_data = df_sorted.groupby(['Assigned to','Type']).size().reset_index(name='counts')
-    ps_pivot = ps_data.pivot_table(values='counts', columns='Assigned to', index='Type'
-                                , margins=True, margins_name='Total', aggfunc='sum')
-   ### Group Report 
-    st.write(ps_pivot.map('{:.0f}'.format))
-     # Assign the custom color scale to the pie chart
-    fig = px.bar(df_sorted.groupby('Assigned to').size().reset_index(name='Resolved Andon Num'),
-                  x='Resolved Andon Num', y='Assigned to', orientation='h' ,text='Resolved Andon Num')
-
-    fig.update_layout(
-        autosize=True,
-        width=700,
-        height=500
+    ps_data = (
+        df.groupby(["Assigned to", "Type"])
+        .size().reset_index(name="counts")
     )
-    
-    st.plotly_chart(fig,use_container_width=True)
-     # pivot table for ps 
-    fig = px.treemap(ps_data, path=['Assigned to','Type'], values='counts', 
-                    title='Types of Andon Resolved by each PS',
-                    custom_data=['counts'],
-                    hover_data={'counts': True},
-                    height=700,width=900
-                    )
-    # Update layout and hover template to display custom data
-    # Update layout
-    st.plotly_chart(fig)
+    ps_pivot = pd.crosstab(df["Type"], df["Assigned to"], margins=True,
+                           margins_name="Total")
+    ps_pivot.index.name = "Type"
+    st.dataframe(ps_pivot, use_container_width=True)
 
-    
-    ## Individual Report
-    st.header('ICQA Problem Solvers Individual Report')
-    col1, col2= st.columns([1, 4])
-    # Display content in the defined columns
-    with col1:
-         report_ps = st.radio('Select Report',df_sorted['Assigned to'].dropna().unique())
-         ps_indvidual = df_sorted[df_sorted['Assigned to'] == report_ps].iloc[:,2:]
-        
-    with col2:
-        # Prepare data for individual reports of PS
-        ps_ind_data = df_sorted[df_sorted['Assigned to'] == report_ps].groupby('Type').size().reset_index(name='counts')
-        #st.write(ps_ind_data)
-        custom_pie_chart(ps_ind_data, 'counts', 'Type',400,400)
-         #
-
-    st.subheader(report_ps)
-    col1, col2= st.columns([3, 2])
-    with col1:
-         st.write(ps_ind_data)
-    with col2:
-         st.write(report_ps)
-         total_rec_ind = ps_ind_data['counts'].sum()
-         st.write(f'{total_rec_ind} Andon has been resolved by {report_ps}')
-         schadual_ps = df_sorted[df_sorted['Assigned to'] == report_ps]['Last updated date'].unique()
-         ind_scheduele = st.radio('Scheduele in Details ',schadual_ps)
-    st.subheader(ind_scheduele)   
-    col1, col2= st.columns([1,4])
-    with col1:
-         st.write(ind_scheduele)
-    with col2:
-         exact_date = df_sorted[(df_sorted['Assigned to'] == report_ps) & (df_sorted['Last updated date'] == ind_scheduele)].groupby('Type').size().reset_index(name='counts')
-         st.write(exact_date)      
-    
-                       
-def hot_bin_report():
-    st.header('hot_bin_report')
-    # Load your data or use sample data
-    # Assuming 'df_sorted' contains your data
-    # Replace this with your actual data
-    df = data[data['Root Cause'] != 'Duplicate']
-    df_sorted = pd.DataFrame(df)
-    # Grouping by 'Location' and getting counts
-    bins = df_sorted.groupby('Locations').size()
-    bin_df = pd.DataFrame(bins)
-    bin_df.reset_index(inplace=True)  # Resetting index
-
-    # Assigning column names
-    bin_df.columns = ['Location', 'Count']
-
-    # Sorting by the 'Count' column in descending order
-    bin_df_sorted = bin_df.sort_values(by='Count', ascending=False)
-    # Get unique counts of repetitions
-    unique_counts = bin_df_sorted['Count'].unique()
-
-    # Streamlit app
-    st.title('Location Details Based on Repeated Counts')
-    # Hot Bin List
-    hot_bin=bin_df_sorted.groupby('Count').size().reset_index()
-    hot_bin.columns=['Update Num','Bin Found']
-    hot_bin=hot_bin.sort_values(by='Update Num',ascending=False)
-    newlist=[]
-    for bin_list in  unique_counts:
-        newlist.append(bin_df_sorted[bin_df_sorted['Count']==bin_list]['Location'].to_list()) 
-    hot_bin['bin Id']=newlist
-
-    st.write(hot_bin,index=False)
-
-    with st.container():
-        st.title('.          Hot Bins')
-        col1, col2 = st.columns(2)
-
-            # Adding content to the first column
-        with col1:
-            
-            # Preparing List for Radio Button
-            radio_list=[]
-            for item in unique_counts[unique_counts>2]: 
-                radio_list.append( " Bin IDs with Update Num of  " + str(item) ) 
-            st.subheader("List the Bin IDs based on the number of updates:")
-            selected_count = st.radio("List the Bin IDs based on the number of updates:",radio_list)
-    # Add other content to the first column as needed
-
-    # Adding content to the second column
-        with col2:
-            selected_hot = int(selected_count.replace( " Bin IDs with Update Num of  ", '' ))
-            locations_with_selected_count = bin_df_sorted[bin_df_sorted['Count'] == selected_hot ]
-            #st.write(locations_with_selected_count)
-            st.subheader(f"Bin IDs Found for Update Num of   {selected_hot} :")
-            selected_bin = st.radio("Select a Bin ID to see the Details :", locations_with_selected_count['Location'])
-
-    # Radio buttons for selecting counts
-
-
-    # Filter data based on selected count
-    locations_with_selected_count = bin_df_sorted[bin_df_sorted['Count'] == selected_count]
-
-    # Display selected count locations
-    if  selected_bin:
-        
-        st.write(f" **{selected_bin} Records:**")
-        bin_rec=df_sorted[df_sorted['Locations']== selected_bin].iloc[:,2:]
-        bin_rec['Locations'], bin_rec['Location'] = bin_rec['Location'], bin_rec['Locations']
-        st.write(bin_rec)
-    else:
-        st.write("No locations with the selected count.")
-        # Display content for Report B
-
-def Andons_report():
-    st.header(f'Amazon YYZ9   Andon Report Based on Area and Types...{open_or_solve}')
-    st.subheader(f'{open_or_solve} Andon counts on different areas')
-    show_data = st.checkbox('Show Data')
-    if show_data:
-        st.write("Uploaded DataFrame:")
-        st.write(data)
-        st.write("Row col",data.shape)
-    # Display content for Report C
-    ## Cleaning data for Area
-   
-    area=filter_data['Location'].value_counts().reset_index()
-    area.columns = ['Location', 'Count']
-
-    # Donut plot for Areas
-    fig = px.pie(area, values='Count', names='Location', hole=0.7)
-
-    color_scale = [
-        # Define a custom color scale with varying shades from yellow to red
-        'rgb(227, 43, 52)' , # Medium gray
-        'rgb(247, 103, 117)',  # Light gray
-        'rgb(68, 125, 115)',  # Medium gray
-        'rgb(70, 201, 184)',  # Yellow 
-        'rgb(220, 255, 255)'   # Dark gray       
-    ]
-    fig.update_layout(
-        autosize=True,
-        width=500,
-        height=500
+    totals = (
+        df.groupby("Assigned to").size()
+        .reset_index(name="Resolved Andon Num")
+        .sort_values("Resolved Andon Num", ascending=True)
     )
-    # Assign the custom color scale to the pie chart
-    fig.update_traces(marker=dict(colors=color_scale))
-    fig.update_layout(
-        legend=dict(
-            orientation='v',  # Horizontal orientation for the legend
-            x=-0.4,  # Positioning the legend in the center horizontally
-            y=0.5  # Positioning the legend in the center vertically
-            
+    fig = px.bar(totals, x="Resolved Andon Num", y="Assigned to",
+                 orientation="h", text="Resolved Andon Num",
+                 title="Resolved Andons by Problem Solver")
+    fig.update_layout(height=500)
+    st.plotly_chart(fig, use_container_width=True)
+
+    fig = px.treemap(ps_data, path=["Assigned to", "Type"], values="counts",
+                     title="Types of Andons Resolved by Each Problem Solver")
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.header("ICQA Problem Solvers Individual Report")
+    left, right = st.columns([1, 4])
+    names = sorted(df["Assigned to"].unique().tolist())
+    with left:
+        report_ps = st.radio("Select Problem Solver", names)
+
+    individual = df[df["Assigned to"] == report_ps]
+    ps_ind_data = (
+        individual.groupby("Type").size()
+        .reset_index(name="counts")
+        .sort_values("counts", ascending=False)
+    )
+    with right:
+        custom_pie_chart(ps_ind_data, "counts", "Type", 400, 400)
+
+    st.subheader(str(report_ps))
+    left, right = st.columns([3, 2])
+    with left:
+        st.dataframe(ps_ind_data, hide_index=True, use_container_width=True)
+    with right:
+        st.metric("Andons resolved", f"{len(individual):,}")
+        dates = sorted(individual["Last updated date"].dropna().unique().tolist())
+        chosen_date = st.selectbox("Schedule in detail", dates)
+
+    st.subheader(f"Activity on {chosen_date}")
+    daily = (
+        individual[individual["Last updated date"] == chosen_date]
+        .groupby("Type").size().reset_index(name="counts")
+    )
+    st.dataframe(daily, hide_index=True, use_container_width=True)
+
+
+# -----------------------------------------------------------
+# Hot Bins report
+# -----------------------------------------------------------
+
+def hot_bin_report(filtered):
+    st.header("Hot Bins Report")
+    st.subheader("Location Details Based on Repeated Counts")
+
+    df = filtered.copy()
+    if "Root Cause" in df.columns:
+        df = df[df["Root Cause"].fillna("").str.casefold() != "duplicate"].copy()
+
+    if df.empty:
+        st.info("No non-duplicate records match the selected filters.")
+        return
+
+    bin_df = (
+        df.groupby("Locations").size()
+        .reset_index(name="Count")
+        .rename(columns={"Locations": "Bin ID"})
+        .sort_values(["Count", "Bin ID"], ascending=[False, True])
+    )
+
+    hot_bin = (
+        bin_df.groupby("Count")["Bin ID"]
+        .agg(["count", lambda s: ", ".join(s.astype(str))])
+        .reset_index()
+        .rename(columns={
+            "Count": "Update Num",
+            "count": "Bin Found",
+            "<lambda_0>": "Bin IDs",
+        })
+        .sort_values("Update Num", ascending=False)
+    )
+    st.dataframe(hot_bin, hide_index=True, use_container_width=True)
+
+    st.subheader("Hot Bins (more than 2 updates)")
+    repeat_counts = sorted(bin_df.loc[bin_df["Count"] > 2, "Count"].unique(),
+                           reverse=True)
+    if not repeat_counts:
+        st.info("No bins with more than two updates were found for these filters.")
+        return
+
+    left, right = st.columns(2)
+    with left:
+        selected_count = st.radio(
+            "Select number of updates",
+            repeat_counts,
+            format_func=lambda n: f"Bin IDs with {n} updates",
         )
+
+    matching_bins = bin_df[bin_df["Count"] == selected_count]
+    with right:
+        st.subheader(f"Bins with {selected_count} updates")
+        selected_bin = st.radio("Select a Bin ID to see details",
+                                matching_bins["Bin ID"].tolist())
+
+    st.subheader(f"Records for {selected_bin}")
+    bin_records = df[df["Locations"] == selected_bin].copy()
+    st.dataframe(bin_records, hide_index=True, use_container_width=True)
+
+
+# -----------------------------------------------------------
+# General Andon charts
+# -----------------------------------------------------------
+
+def andons_report(filtered, report_status, date1, date2):
+    st.header(f"Amazon YYZ9 Andon Report: {report_status}")
+    st.subheader(f"{report_status} Andon Counts by Area")
+
+    if st.checkbox("Show source data"):
+        st.dataframe(filtered, use_container_width=True)
+        st.write(f"Rows: {len(filtered):,}, Columns: {len(filtered.columns)}")
+
+    if filtered.empty:
+        st.info("There are no records matching the selected filters.")
+        return
+
+    area = filtered["Location"].value_counts().reset_index()
+    area.columns = ["Location", "Count"]
+    st.metric(f"Total {report_status} Andons", f"{len(filtered):,}")
+    st.dataframe(area, hide_index=True, use_container_width=True)
+
+    colors = ["#e32b34", "#f76775", "#447d73", "#46c9b8", "#dcffff"]
+    fig = px.pie(area, values="Count", names="Location", hole=0.7,
+                 title="Andon Distribution by Area",
+                 color_discrete_sequence=colors)
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.subheader(f"Counts of {report_status} Andons Across the Days")
+    daily = (
+        filtered.groupby("Last updated date").size()
+        .reset_index(name="Count")
+        .sort_values("Last updated date")
     )
+    fig = px.line(daily, x="Last updated date", y="Count",
+                  title="Andon Counts Over Time", markers=True)
+    st.plotly_chart(fig, use_container_width=True)
 
-    # Defining First row in two parts of columns
-    st.write(f'Total number of {open_or_solve} Andons =' + str(len(data) ) )
-    st.write(area)
-    #if area.iloc[0,0] : st.write(f'**Total number of Andons at { area.iloc[0,0] } =  { area.iloc[0,1] }**'  )
-    #if area.iloc[1,0] : st.write(f'**Total number of Andons at { area.iloc[1,0] } =  { area.iloc[1,1] }**'  )
-    #if area.iloc[2,0] : st.write(f'**Total number of Andons at { area.iloc[2,0] } =  { area.iloc[2,1] }**'  )
-    #if area.iloc[3,0] : st.write(f'**Total number of Andons at { area.iloc[3,0] } =  { area.iloc[3,1] }**'  )
-    #if area.iloc[4,0] : st.write(f'**Total number of Andons at { area.iloc[4,0] } =  { area.iloc[4,1] }**'  )
-    #if area.iloc[5,0] : st.write(f'**Total number of Andons at { area.iloc[5,0] } =  { area.iloc[5,1] }**'  )
-    
-    st.plotly_chart(fig,use_container_width=True)
-    col1, col2 = st.columns((2))
-    #####with col1:
-        
-        #st.dataframe(area)
-        
-    #####with col2:
-        #st.write('Total number of Andons =' + str(len(data) ) )
-        #st.plotly_chart(fig,use_container_width=True)
-    
-    # Line chart using Plotly Express
-    st.subheader(f"Counts of {open_or_solve} Andon Across the Days") 
-    pivot_df = filter_data.groupby('Last updated date').size().reset_index(name='Count')
-    fig = px.line(pivot_df, x='Last updated date', y='Count',  title='Count per Location Over Time')
-    fig.update_layout(xaxis_title='Date', yaxis_title='Count',width=900,height=500)
-    st.plotly_chart(fig)
-
-    # Function to create the chart based on the selected type
-    def create_chart(chart_type):
-        pivot_df = filter_data.groupby(['Last updated date', 'Location']).size().reset_index(name='Count')
-
-        if chart_type == 'Bar':
-            fig = px.bar(pivot_df, x='Last updated date', y='Count', color='Location',
-                        title='Count per Location Over Time')
-        elif chart_type == 'Area':
-            fig = px.area(pivot_df, x='Last updated date', y='Count', color='Location',
-                        title='Count per Location Over Time')
-        elif chart_type == 'Line':
-            fig = px.line(pivot_df, x='Last updated date', y='Count', color='Location',
-                        title='Count per Location Over Time')
-
-        fig.update_layout(xaxis_title='Date', yaxis_title='Count', width=900, height=500)
-        st.plotly_chart(fig)
-
-    # Streamlit app
-    st.subheader(f"Counts of {open_or_solve} Andon Across the Days in different Areas")
-    # Radio box to select the chart type
-    chart_types = ['Area','Bar','Line']
-    selected_chart = st.radio("Select Chart Type", chart_types)
-    # Create chart based on the selected type
-    create_chart(selected_chart)
-        
-    
-
-    # Line chart using Plotly Express
-    st.subheader(f"Counts of {open_or_solve} Andon Typed Across the Days") 
-
-    pivot_df = filter_data.groupby(['Last updated date', 'Type']).size().reset_index(name='Count')
-    fig = px.bar(pivot_df, x='Last updated date', y='Count', color='Type',  title='Count/Type Over Time')
-    fig.update_layout(xaxis_title='Date', yaxis_title='Count',width=900,height=500)
-    st.plotly_chart(fig)
-
-
-    st.subheader(f"Cumulative counts of {open_or_solve} Andon Types based on their respective types from  {startDate} to {endDate}") 
-    # Type of issues
-###################################################
-    start_time, end_time = st.slider(
-    "Select Time Range",
-    min_value=date1,
-    max_value=date2,
-    value=(date1, date2))
-    st.write(start_time, end_time)
-    
-    
-##################################################
-    type_counts = filter_data[(filter_data['Last updated date'] >= start_time) &
-     (filter_data['Last updated date'] <= end_time)]['Type'].value_counts().reset_index()
-  
-    type_counts.columns = ['Type', 'Count']
-    # Create a horizontal bar chart with a custom color scale
-    fig = px.bar(
-        type_counts,
-        x='Count',
-        y='Type',
-        orientation='h',
-        text='Count',
-        color='Count',  # Use the 'Count' column to define colors
-        color_continuous_scale='viridis',  # Set a color scale (you can use other predefined scales)
-        labels={'Count': 'Count'},  # Label for the color bar
+    st.subheader(f"Counts of {report_status} Andons Across Areas")
+    by_area = (
+        filtered.groupby(["Last updated date", "Location"]).size()
+        .reset_index(name="Count")
     )
+    chart_type = st.radio("Select Chart Type", ["Area", "Bar", "Line"],
+                          horizontal=True)
+    chart_args = dict(data_frame=by_area, x="Last updated date", y="Count",
+                      color="Location", title="Counts per Area Over Time")
+    if chart_type == "Area":
+        fig = px.area(**chart_args)
+    elif chart_type == "Bar":
+        fig = px.bar(**chart_args)
+    else:
+        fig = px.line(**chart_args)
+    st.plotly_chart(fig, use_container_width=True)
 
-    # Update layout and axis titles if necessary
-    fig.update_layout(
-        title='Count Type Distribution',
-        xaxis_title='Count',
-        yaxis_title='Type',
-        width=850,
-        height=500
+    st.subheader(f"Counts of {report_status} Andon Types Across the Days")
+    by_type = (
+        filtered.groupby(["Last updated date", "Type"]).size()
+        .reset_index(name="Count")
     )
-    st.plotly_chart(fig)
-    # Display the plot
+    fig = px.bar(by_type, x="Last updated date", y="Count", color="Type",
+                 title="Andon Types Over Time")
+    st.plotly_chart(fig, use_container_width=True)
 
-    st.subheader(f" Tree Map of {open_or_solve} Andon Issue Counts by Location  ")
-    # Create a pivot table to aggregate counts based on Location and Type
-    pivot_df = filter_data.groupby(['Location', 'Type']).size().reset_index(name='Count')
+    st.subheader(f"Cumulative {report_status} Andon Types")
+    if date1 < date2:
+        start_time, end_time = st.slider(
+            "Select Time Range", min_value=date1, max_value=date2,
+            value=(date1, date2),
+        )
+    else:
+        start_time = end_time = date1
+        st.caption(f"Selected date: {date1}")
+
+    in_range = filtered[
+        (filtered["Last updated date"] >= start_time)
+        & (filtered["Last updated date"] <= end_time)
+    ]
+    type_counts = in_range["Type"].value_counts().reset_index()
+    type_counts.columns = ["Type", "Count"]
+    if not type_counts.empty:
+        fig = px.bar(type_counts, x="Count", y="Type", orientation="h",
+                     text="Count", color="Count",
+                     color_continuous_scale="Viridis",
+                     title="Count Type Distribution")
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("No Andons in this time range.")
+
+    pivot_df = (
+        filtered.groupby(["Location", "Type"]).size()
+        .reset_index(name="Count")
+    )
+    if not pivot_df.empty:
+        st.subheader(f"Treemap: {report_status} Andon Types by Location")
+        fig = px.treemap(pivot_df, path=["Location", "Type"], values="Count",
+                         title="Andon Types Within Each Area")
+        st.plotly_chart(fig, use_container_width=True)
+
+        st.subheader(f"Treemap: Locations Within {report_status} Andon Types")
+        fig = px.treemap(pivot_df, path=["Type", "Location"], values="Count",
+                         title="Areas Within Each Type of Andon")
+        st.plotly_chart(fig, use_container_width=True)
 
 
-    # Create a treemap using Plotly Express
-    fig = px.treemap(pivot_df, path=['Location', 'Type'], values='Count', 
-                    title='Types of Andon Within each Area',
-                    custom_data=['Count'],
-                    hover_data={'Count': True},
-                    height=700,width=900
-                    )
-
-    # Update layout and hover template to display custom data
-    # Update layout
-
-    st.plotly_chart(fig)
-    # Add annotations for each tile with count values
-    # Create a treemap using Plotly Express
-    st.subheader(f" Tree Map of Count Types of {open_or_solve} Andons in Respective Areas ")
-    fig = px.treemap(pivot_df, path=[ 'Type','Location'], values='Count', 
-                    title='Zone Within each Type of Andons',
-                    custom_data=['Count'],
-                    hover_data={'Count': True},
-                    height=700,width=900)
-    # Update layout and hover template to display custom data
-
-    # Update layout
-
-    st.plotly_chart(fig)
+# -----------------------------------------------------------
+# Main app
+# -----------------------------------------------------------
 
 def main():
-    st.sidebar.title('Select Report')
-    report_choice = st.sidebar.radio('Select Report', radio_list)
+    st.title("Amazon FC ANDON Data Reports")
+    uploaded = st.file_uploader("Upload / Drag and Drop FC ANDON CSV", type=["csv"])
+    if uploaded is None:
+        st.info("No CSV uploaded. Showing synthetic demonstration data.")
+        raw_data = generate_simulated_data()
+        if st.checkbox("Show demonstration data"):
+            st.dataframe(raw_data.head(), hide_index=True)
+    else:
+        try:
+            raw_data = pd.read_csv(uploaded)
+        except Exception as exc:
+            st.error(f"Could not read CSV: {exc}")
+            st.stop()
+        st.success("FC ANDON CSV loaded successfully.")
 
-    if report_choice == 'Problem Solvers Report':
-        ps_report()
-    elif report_choice == 'Hot Bins Report':
-        hot_bin_report()
-    elif report_choice == 'Andons report':
-        Andons_report()
+    try:
+        data = prepare_data(raw_data)
+    except ValueError as exc:
+        st.error(str(exc))
+        st.stop()
 
-if __name__ == '__main__':
+    if data.empty:
+        st.warning("No valid records are available.")
+        st.stop()
+
+    has_root_cause = "Root Cause" in data.columns
+    resolved = (has_root_cause and
+                data["Root Cause"].isna().sum() <= 0.5 * len(data))
+    status = "Resolved" if resolved else "Non-Resolved"
+    report_list = ["Andons report"]
+    if resolved:
+        if "Assigned to" in data.columns:
+            report_list.append("Problem Solvers Report")
+        report_list.append("Hot Bins Report")
+
+    st.sidebar.header("Choose your filters")
+    min_date = data["Last updated date"].min()
+    max_date = data["Last updated date"].max()
+    date1 = st.sidebar.date_input("Start Date", min_date,
+                                  min_value=min_date, max_value=max_date)
+    date2 = st.sidebar.date_input("End Date", max_date,
+                                  min_value=min_date, max_value=max_date)
+    if date1 > date2:
+        st.warning("Start Date cannot be after End Date.")
+        st.stop()
+
+    dated = data[
+        (data["Last updated date"] >= date1)
+        & (data["Last updated date"] <= date2)
+    ].copy()
+    selected_area = st.sidebar.multiselect(
+        "Region", sorted(dated["Location"].dropna().unique().tolist())
+    )
+    selected_type = st.sidebar.multiselect(
+        "Type of Andons", sorted(dated["Type"].dropna().unique().tolist())
+    )
+
+    filtered = dated
+    if selected_area:
+        filtered = filtered[filtered["Location"].isin(selected_area)]
+    if selected_type:
+        filtered = filtered[filtered["Type"].isin(selected_type)]
+    filtered = filtered.copy()
+
+    area_text = ", ".join(selected_area) if selected_area else "all regions"
+    type_text = ", ".join(selected_type) if selected_type else "all types"
+    st.caption(f"Report from {date1} to {date2} | {area_text} | {type_text}")
+
+    st.sidebar.title("Select Report")
+    choice = st.sidebar.radio("Select Report", report_list)
+    if choice == "Problem Solvers Report":
+        ps_report(filtered)
+    elif choice == "Hot Bins Report":
+        hot_bin_report(filtered)
+    else:
+        andons_report(filtered, status, date1, date2)
+
+
+if __name__ == "__main__":
     main()
-
-
-
-
